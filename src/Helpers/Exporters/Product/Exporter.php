@@ -724,7 +724,7 @@ class Exporter extends AbstractExporter
             $variants = $result['body']['data']['productUpdate']['product']['variants']['edges'];
             foreach ($variants as $variant) {
                 $variantId = $variant['node']['id'];
-                $inventoryData = $variantData['inventoryQuantities'];
+                $inventoryData = $variantData['inventoryQuantities'] ?? [];
                 unset($variantData['inventoryQuantities']);
                 $variantDataFormatted = [
                     'productId' => $productId,
@@ -735,7 +735,8 @@ class Exporter extends AbstractExporter
                 $productVariant = $defaultVariant['body']['data'][self::VARIANT_UPDATE] ?? [];
                 $inventoryToLocations = $productVariant['productVariants'][0]['inventoryItem']['inventoryLevels']['edges'] ?? [];
                 $inventoryItemId = $productVariant['productVariants'][0]['inventoryItem']['id'];
-                $addedQuantity = (int) $inventoryData['availableQuantity'] - (int) $productVariant['productVariants'][0]['inventoryQuantity'];
+                $addedQuantity = (int) ($inventoryData['availableQuantity'] ?? 0) - (int) $productVariant['productVariants'][0]['inventoryQuantity'];
+
                 foreach ($inventoryToLocations as $inventoryToLocation) {
                     $this->updateInventoryValue($inventoryToLocation['node']['location']['id'], $inventoryItemId, $addedQuantity);
                 }
